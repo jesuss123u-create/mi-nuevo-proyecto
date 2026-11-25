@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NASA | Exploración Espacial y Telemetría</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            space: {
+              950: '#040711',
+              900: '#080e21',
+              800: '#0f1938',
+              700: '#182652',
+            },
+            nasa: {
+              red: '#FC3D21',
+              blue: '#0B3D91',
+              cyan: '#00E5FF',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #040711;
+      color: #f8fafc;
+      overflow-x: hidden;
+    }
+    .glass-panel {
+      background: rgba(15, 25, 56, 0.55);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.25);
+    }
+    .glow-red {
+      box-shadow: 0 0 25px rgba(252, 61, 33, 0.35);
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.85); opacity: 0.9; }
+      70% { transform: scale(1.6); opacity: 0; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .live-dot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 9999px;
+      background-color: #00E5FF;
+      animation: pulse-ring 1.8s infinite;
+    }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(1.5deg); }
+    }
+    .planet-float {
+      animation: floatSlow 6s ease-in-out infinite;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #040711; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #00E5FF; }
+  </style>
+</head>
+<body class="antialiased selection:bg-nasa-cyan selection:text-space-950">
+
+  <!-- ========================================================= -->
+  <!-- 1. BARRA DE NAVEGACIÓN FIJA                               -->
+  <!-- ========================================================= -->
+  <header class="fixed top-0 left-0 right-0 z-50 glass-panel border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        <!-- Logotipo estilo NASA -->
+        <a href="#inicio" class="flex items-center gap-3 group">
+          <div class="relative w-11 h-11 rounded-full bg-nasa-blue flex items-center justify-center shadow-lg border border-white/20 overflow-hidden group-hover:scale-105 transition-transform">
+            <!-- Vector orbital decorativo -->
+            <svg viewBox="0 0 64 64" class="w-11 h-11">
+              <circle cx="32" cy="32" r="30" fill="#0B3D91" />
+              <path d="M8 42 Q32 14 58 24" stroke="#FC3D21" stroke-width="3.2" fill="none" stroke-linecap="round" />
+              <path d="M12 22 L28 48 L48 16" stroke="#ffffff" stroke-width="1.4" fill="none" opacity="0.55" />
+              <circle cx="48" cy="18" r="2" fill="#ffffff" />
+              <circle cx="18" cy="20" r="1.2" fill="#ffffff" />
+              <text x="32" y="37" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-weight="900" font-size="14" letter-spacing="1">NASA</text>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-extrabold tracking-wider text-sm sm:text-base text-white">EXPLORACIÓN ESPACIAL</span>
+            <span class="text-[11px] font-mono text-nasa-cyan tracking-widest uppercase">Control de Misión</span>
+          </div>
+        </a>
+
+        <!-- Enlaces Desktop -->
+        <nav class="hidden lg:flex items-center gap-7 text-sm font-medium text-slate-300">
+          <a href="#misiones" class="hover:text-nasa-cyan transition-colors">Misiones</a>
+          <a href="#sistema-solar" class="hover:text-nasa-cyan transition-colors">Exploración Solar</a>
+          <a href="#telemetria" class="hover:text-nasa-cyan transition-colors">Telemetría / Lanzamiento</a>
+          <a href="#galeria" class="hover:text-nasa-cyan transition-colors">Galería Espacial</a>
+          <a href="#noticias" class="hover:text-nasa-cyan transition-colors">Noticias</a>
+        </nav>
+
+        <!-- Indicador de estado en vivo + botón menú móvil -->
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-space-900/90 border border-nasa-cyan/30 text-xs font-mono">
+            <span class="relative flex h-2.5 w-2.5 live-dot">
+              <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-nasa-cyan"></span>
+            </span>
+            <span class="text-slate-300">ISS ÓRBITA:</span>
+            <span id="nav-iss-speed" class="text-nasa-cyan font-bold">27,580 km/h</span>
+          </div>
+
+          <button id="mobile-menu-btn" aria-label="Abrir menú" class="lg:hidden p-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menú móvil desplegable -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-white/10 bg-space-950/95 px-4 pt-3 pb-5 space-y-2">
+      <a href="#misiones" class="block px-3 py-2.5 rounded-xl text-slate-200 hover:bg-white/10 font-medium">Misiones Activas</a>
+      <a href="#sistema-solar" class="block px-3 py-2.5 rounded-xl text-slate-200 hover:bg-white/10 font-medium">Exploración Solar</a>
+      <a href="#telemetria" class="block px-3 py-2.5 rounded-xl text-slate-200 hover:bg-white/10 font-medium">Telemetría / Lanzamiento</a>
+      <a href="#galeria" class="block px-3 py-2.5 rounded-xl text-slate-200 hover:bg-white/10 font-medium">Galería Espacial (APOD)</a>
+      <a href="#noticias" class="block px-3 py-2.5 rounded-xl text-slate-200 hover:bg-white/10 font-medium">Noticias Aeroespaciales</a>
+      <div class="pt-2 flex items-center gap-2 px-3 text-xs font-mono text-nasa-cyan">
+        <span class="h-2 w-2 rounded-full bg-nasa-cyan animate-ping"></span>
+        <span>DSN ACTIVO • TELEMETRÍA EN VIVO</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================= -->
+  <!-- 2. SECCIÓN HERO CON CANVAS DE ESTRELLAS ANIMADO           -->
+  <!-- ========================================================= -->
+  <section id="inicio" class="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
+    <!-- Canvas interactivo de campo estelar -->
+    <canvas id="starfield-canvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+
+    <!-- Gradientes atmosféricos -->
+    <div class="absolute inset-0 bg-gradient-to-b from-space-950/40 via-space-950/60 to-space-950 pointer-events-none"></div>
+    <div class="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-nasa-blue/25 blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-10 -left-24 w-80 h-80 rounded-full bg-nasa-cyan/10 blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div class="grid lg:grid-cols-12 gap-10 items-center">
+        <!-- Columna izquierda: Titular y llamadas a la acción -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-nasa-red/15 border border-nasa-red/40 text-nasa-red text-xs font-mono font-semibold tracking-wider uppercase">
+            <span class="w-2 h-2 rounded-full bg-nasa-red animate-pulse"></span>
+            Programa Artemis • Exploración del Espacio Profundo
+          </div>
+
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.1]">
+            Más allá de nuestro horizonte hacia <span class="text-transparent bg-clip-text bg-gradient-to-r from-nasa-cyan via-sky-300 to-white">nuevos mundos</span>
+          </h1>
+
+          <p class="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
+            Supervisa misiones activas en tiempo real, explora los cuerpos celestes del Sistema Solar y ejecuta una secuencia completa de lanzamiento orbital desde nuestra consola interactiva de control de vuelo.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-4 pt-2">
+            <a href="#telemetria" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-nasa-red hover:bg-red-600 text-white font-bold text-sm sm:text-base transition-all glow-red shadow-lg">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              Iniciar Simulación de Lanzamiento
+            </a>
+            <a href="#misiones" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-2xl glass-panel hover:bg-white/10 text-white font-semibold text-sm sm:text-base transition-all border border-white/15">
+              Explorar Misiones Activas
+              <svg class="w-4 h-4 text-nasa-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          </div>
+
+          <!-- Métricas clave en tiempo real -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6">
+            <div class="glass-panel rounded-2xl p-4 border-l-4 border-l-nasa-cyan">
+              <div class="text-xs font-mono text-slate-400 uppercase">Misiones Activas</div>
+              <div class="text-2xl sm:text-3xl font-extrabold text-white mt-1 font-mono">84</div>
+              <div class="text-xs text-nasa-cyan mt-1">Órbita terrestre y espacio profundo</div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4 border-l-4 border-l-nasa-red">
+              <div class="text-xs font-mono text-slate-400 uppercase">Distancia Voyager 1</div>
+              <div id="voyager-distance" class="text-xl sm:text-2xl font-extrabold text-white mt-1 font-mono">24,812,490,120 km</div>
+              <div class="text-xs text-slate-400 mt-1">Espacio interestelar (+17 km/s)</div>
+            </div>
+
+            <div class="glass-panel rounded-2xl p-4 border-l-4 border-l-sky-400">
+              <div class="text-xs font-mono text-slate-400 uppercase">Red Espacio Profundo</div>
+              <div id="dsn-signal" class="text-2xl sm:text-3xl font-extrabold text-white mt-1 font-mono">99.8%</div>
+              <div class="text-xs text-emerald-400 mt-1">Goldstone • Madrid • Canberra</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna derecha: Visualización orbital interactiva -->
+        <div class="lg:col-span-5 flex justify-center">
+          <div class="relative w-full max-w-md glass-panel rounded-3xl p-6 border border-nasa-cyan/20 glow-cyan">
+            <div class="flex items-center justify-between text-xs font-mono text-slate-400 mb-4">
+              <span>TELEMETRÍA ORBITAL • LEO</span>
+              <span class="text-nasa-cyan" id="hero-utc-clock">UTC 00:00:00</span>
+            </div>
+
+            <!-- Representación SVG animada de órbita terrestre y nave -->
+            <div class="relative aspect-square rounded-2xl bg-space-950/90 border border-white/10 flex items-center justify-center overflow-hidden">
+              <svg viewBox="0 0 320 320" class="w-full h-full">
+                <defs>
+                  <radialGradient id="earthGrad" cx="35%" cy="35%" r="65%">
+                    <stop offset="0%" stop-color="#38bdf8" />
+                    <stop offset="45%" stop-color="#0B3D91" />
+                    <stop offset="100%" stop-color="#030712" />
+                  </radialGradient>
+                  <radialGradient id="atmoGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="70%" stop-color="#00E5FF" stop-opacity="0.25" />
+                    <stop offset="100%" stop-color="#00E5FF" stop-opacity="0" />
+                  </radialGradient>
+                </defs>
+
+                <!-- Anillos orbitales -->
+                <circle cx="160" cy="160" r="135" fill="none" stroke="rgba(255,255,255,0.08)" stroke-dasharray="4 6" />
+                <ellipse cx="160" cy="160" rx="135" ry="52" transform="rotate(-24 160 160)" fill="none" stroke="#00E5FF" stroke-opacity="0.45" stroke-width="1.5" />
+                <ellipse cx="160" cy="160" rx="115" ry="42" transform="rotate(32 160 160)" fill="none" stroke="#FC3D21" stroke-opacity="0.35" stroke-width="1.2" stroke-dasharray="5 5" />
+
+                <!-- Atmósfera y planeta Tierra -->
+                <circle cx="160" cy="160" r="82" fill="url(#atmoGlow)" />
+                <circle cx="160" cy="160" r="64" fill="url(#earthGrad)" />
+                <!-- Continentes estilizados -->
+                <path d="M125 135 Q142 125 155 138 T175 155 Q162 175 142 170 T125 135 Z" fill="#10b981" opacity="0.45" />
+                <path d="M172 122 Q192 128 198 148 Q184 156 172 142 Z" fill="#34d399" opacity="0.35" />
+
+                <!-- Satélite animado en trayectoria -->
+                <g id="hero-satellite">
+                  <circle cx="275" cy="112" r="5" fill="#00E5FF" />
+                  <circle cx="275" cy="112" r="10" fill="none" stroke="#00E5FF" stroke-width="1" opacity="0.7" />
+                </g>
+              </svg>
+
+              <div class="absolute bottom-3 left-3 right-3 flex justify-between items-center bg-space-900/85 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10 text-[11px] font-mono">
+                <div>
+                  <span class="text-slate-400">ALTITUD:</span>
+                  <span class="text-white font-bold">408.4 km</span>
+                </div>
+                <div>
+                  <span class="text-slate-400">INCLINACIÓN:</span>
+                  <span class="text-nasa-cyan font-bold">51.6°</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 flex items-center justify-between text-xs text-slate-300">
+              <span>Próxima ventana de lanzamiento:</span>
+              <span class="font-mono text-nasa-red font-bold">T-00:00:10 LISTO</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- 3. EXPLORADOR INTERACTIVO DEL SISTEMA SOLAR               -->
+  <!-- ========================================================= -->
+  <section id="sistema-solar" class="py-20 bg-space-900/40 border-y border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-widest text-nasa-cyan">Catálogo Planetario</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Explorador del Sistema Solar</h2>
+        </div>
+        <p class="text-slate-400 text-sm max-w-md">
+          Selecciona un planeta o satélite natural para inspeccionar sus parámetros físicos, atmósfera y misiones espaciales enviadas.
+        </p>
+      </div>
+
+      <!-- Selector de cuerpos celestes -->
+      <div id="planet-selector" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+        <!-- Generado dinámicamente por JS -->
+      </div>
+
+      <!-- Panel detallado del cuerpo seleccionado -->
+      <div class="glass-panel rounded-3xl p-6 sm:p-8 lg:p-10 border border-white/10">
+        <div class="grid lg:grid-cols-12 gap-8 items-center">
+          <!-- Visualización planetaria SVG -->
+          <div class="lg:col-span-5 flex flex-col items-center justify-center">
+            <div id="planet-visual-container" class="w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center planet-float">
+              <!-- SVG dinámico del planeta -->
+            </div>
+            <span id="planet-classification" class="mt-4 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-nasa-cyan">
+              Planeta Terrestre
+            </span>
+          </div>
+
+          <!-- Datos científicos -->
+          <div class="lg:col-span-7 space-y-6">
+            <div>
+              <div class="flex items-center gap-3">
+                <h3 id="planet-name" class="text-3xl sm:text-4xl font-black text-white">Tierra</h3>
+                <span id="planet-subtitle" class="text-sm font-mono text-slate-400">Nuestro hogar azul</span>
+              </div>
+              <p id="planet-description" class="text-slate-300 mt-3 leading-relaxed text-sm sm:text-base">
+                El tercer planeta desde el Sol y el único mundo conocido hasta la fecha que alberga vida y agua líquida estable en su superficie.
+              </p>
+            </div>
+
+            <!-- Tarjetas de métricas reales -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+              <div class="bg-space-950/80 rounded-2xl p-4 border border-white/10">
+                <div class="text-[11px] font-mono text-slate-400 uppercase">Distancia al Sol</div>
+                <div id="planet-distance" class="text-base sm:text-lg font-bold text-white font-mono mt-1">149.6M km</div>
+              </div>
+              <div class="bg-space-950/80 rounded-2xl p-4 border border-white/10">
+                <div class="text-[11px] font-mono text-slate-400 uppercase">Gravedad</div>
+                <div id="planet-gravity" class="text-base sm:text-lg font-bold text-nasa-cyan font-mono mt-1">9.81 m/s²</div>
+              </div>
+              <div class="bg-space-950/80 rounded-2xl p-4 border border-white/10">
+                <div class="text-[11px] font-mono text-slate-400 uppercase">Temp. Media</div>
+                <div id="planet-temp" class="text-base sm:text-lg font-bold text-amber-300 font-mono mt-1">15 °C</div>
+              </div>
+              <div class="bg-space-950/80 rounded-2xl p-4 border border-white/10">
+                <div class="text-[11px] font-mono text-slate-400 uppercase">Duración Día</div>
+                <div id="planet-day" class="text-base sm:text-lg font-bold text-white font-mono mt-1">23h 56m</div>
+              </div>
+            </div>
+
+            <!-- Misiones destacadas al cuerpo celeste -->
+            <div class="pt-2">
+              <div class="text-xs font-mono text-slate-400 uppercase mb-2.5">Misiones Destacadas</div>
+              <div id="planet-missions" class="flex flex-wrap gap-2">
+                <!-- Badges dinámicos -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- 4. PANEL DE MISIONES ACTIVAS CON FILTROS Y MODAL          -->
+  <!-- ========================================================= -->
+  <section id="misiones" class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-widest text-nasa-red">Operaciones en Curso</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Panel de Misiones Activas</h2>
+        </div>
+
+        <!-- Filtros por categoría -->
+        <div id="mission-filters" class="flex flex-wrap gap-2">
+          <button data-filter="Todas" class="filter-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-nasa-cyan text-space-950 transition-all">
+            Todas
+          </button>
+          <button data-filter="Luna/Artemis" class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 transition-all">
+            Luna / Artemis
+          </button>
+          <button data-filter="Marte" class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 transition-all">
+            Marte
+          </button>
+          <button data-filter="Espacio Profundo" class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 transition-all">
+            Espacio Profundo
+          </button>
+          <button data-filter="Telescopios" class="filter-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-white/5 text-slate-300 hover:bg-white/10 border border-white/10 transition-all">
+            Telescopios
+          </button>
+        </div>
+      </div>
+
+      <!-- Cuadrícula de tarjetas de misiones -->
+      <div id="missions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Renderizado dinámico -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- 5. SIMULADOR INTERACTIVO DE LANZAMIENTO Y TELEMETRÍA      -->
+  <!-- ========================================================= -->
+  <section id="telemetria" class="py-20 bg-space-900/50 border-y border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-10">
+        <span class="text-xs font-mono uppercase tracking-widest text-nasa-cyan">Centro Espacial Kennedy • Plataforma 39B</span>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Simulador de Lanzamiento y Telemetría</h2>
+        <p class="text-slate-400 text-sm sm:text-base mt-2 max-w-2xl">
+          Ejecuta la secuencia automatizada de ignición del vehículo pesado SLS / Orión. Observa en tiempo real la altitud, velocidad orbital y separación de etapas.
+        </p>
+      </div>
+
+      <div class="glass-panel rounded-3xl p-6 sm:p-8 border border-nasa-cyan/25">
+        <div class="grid lg:grid-cols-12 gap-8 items-center">
+          <!-- Panel izquierdo: Visualización gráfica del cohete y trayectoria -->
+          <div class="lg:col-span-5">
+            <div class="relative h-80 sm:h-96 rounded-2xl bg-gradient-to-b from-space-950 via-space-900 to-slate-900 border border-white/10 overflow-hidden flex flex-col justify-between p-4">
+              <!-- Indicador superior en canvas -->
+              <div class="flex justify-between items-center z-10 text-xs font-mono">
+                <span class="px-2.5 py-1 rounded-lg bg-black/50 text-nasa-cyan border border-nasa-cyan/30" id="sim-stage-badge">
+                  EN PLATAFORMA
+                </span>
+                <span class="text-slate-300" id="sim-clock">T - 00:10</span>
+              </div>
+
+              <!-- Canvas animado del cohete -->
+              <canvas id="rocket-canvas" class="absolute inset-0 w-full h-full"></canvas>
+
+              <!-- Barra de progreso de órbita -->
+              <div class="z-10 bg-space-950/85 backdrop-blur-md p-3 rounded-xl border border-white/10">
+                <div class="flex justify-between text-[11px] font-mono text-slate-400 mb-1.5">
+                  <span>INSERCIÓN ORBITAL</span>
+                  <span id="sim-orbit-pct" class="text-white font-bold">0%</span>
+                </div>
+                <div class="w-full h-2 rounded-full bg-white/10 overflow-hidden">
+                  <div id="sim-orbit-bar" class="h-full bg-gradient-to-r from-nasa-red via-amber-400 to-nasa-cyan transition-all duration-150" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel derecho: Controles y lecturas de telemetría -->
+          <div class="lg:col-span-7 space-y-6">
+            <!-- Controles de secuencia -->
+            <div class="flex flex-wrap items-center gap-3">
+              <button id="btn-launch" class="px-6 py-3.5 rounded-2xl bg-nasa-red hover:bg-red-600 text-white font-bold text-sm flex items-center gap-2 transition-all shadow-lg glow-red cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Iniciar Cuenta Regresiva
+              </button>
+
+              <button id="btn-reset-sim" class="px-5 py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-200 font-semibold text-sm border border-white/15 transition-all cursor-pointer">
+                Reiniciar Secuencia
+              </button>
+            </div>
+
+            <!-- Lecturas numéricas en tiempo real -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+              <div class="bg-space-950/90 rounded-2xl p-4 border border-white/10">
+                <div class="text-[11px] font-mono text-slate-400">ALTITUD</div>
+                <div id="tel-altitude" class="text-xl sm:text-2xl font-extrabold text-white font-mono mt-1">0.0 km</div>
+              </div>
+              <div class="bg-space-950/90 rounded-2xl p-4 border border-white/10">
+                <div class="text-[11px] font-mono text-slate-400">VELOCIDAD</div>
+                <div id="tel-velocity" class="text-xl sm:text-2xl font-extrabold text-nasa-cyan font-mono mt-1">0 km/h</div>
+              </div>
+              <div class="bg-space-950/90 rounded-2xl p-4 border border-white/10">
+                <div class="text-[11px] font-mono text-slate-400">ACELERACIÓN</div>
+                <div id="tel-gforce" class="text-xl sm:text-2xl font-extrabold text-amber-400 font-mono mt-1">1.0 G</div>
+              </div>
+              <div class="bg-space-950/90 rounded-2xl p-4 border border-white/10">
+                <div class="text-[11px] font-mono text-slate-400">COMBUSTIBLE</div>
+                <div id="tel-fuel" class="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono mt-1">100%</div>
+              </div>
+            </div>
+
+            <!-- Etapas de propulsión -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              <div id="step-1" class="p-3 rounded-xl bg-space-950/60 border border-white/10 text-xs font-mono">
+                <div class="text-slate-500">FASE 01</div>
+                <div class="font-bold text-slate-300 mt-0.5">Etapa 1 / SRB</div>
+              </div>
+              <div id="step-2" class="p-3 rounded-xl bg-space-950/60 border border-white/10 text-xs font-mono">
+                <div class="text-slate-500">FASE 02</div>
+                <div class="font-bold text-slate-300 mt-0.5">Separación</div>
+              </div>
+              <div id="step-3" class="p-3 rounded-xl bg-space-950/60 border border-white/10 text-xs font-mono">
+                <div class="text-slate-500">FASE 03</div>
+                <div class="font-bold text-slate-300 mt-0.5">Etapa 2 ICPS</div>
+              </div>
+              <div id="step-4" class="p-3 rounded-xl bg-space-950/60 border border-white/10 text-xs font-mono">
+                <div class="text-slate-500">FASE 04</div>
+                <div class="font-bold text-slate-300 mt-0.5">Órbita Estable</div>
+              </div>
+            </div>
+
+            <!-- Consola de registro de eventos -->
+            <div class="bg-space-950 rounded-2xl p-4 border border-white/10 font-mono text-xs h-32 overflow-y-auto space-y-1.5" id="sim-console">
+              <div class="text-slate-400">[SISTEMA] Telemetría lista. Sistemas hidráulicos y aviónica verificados.</div>
+              <div class="text-nasa-cyan">[ESTADO] Presiona "Iniciar Cuenta Regresiva" para comenzar la secuencia T-10.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- 6. GALERÍA ASTRONÓMICA (ESTILO APOD)                       -->
+  <!-- ========================================================= -->
+  <section id="galeria" class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-widest text-nasa-cyan">Imagen Astronómica del Día (APOD)</span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-1">Galería del Cosmos</h2>
+        </div>
+        <p class="text-slate-400 text-sm max-w-md">
+          Haz clic en cualquier captura astronómica para abrirla en pantalla completa y leer su análisis científico detallado.
+        </p>
+      </div>
+
+      <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Tarjetas generadas por JS con ilustraciones SVG/Canvas de alta calidad -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- SECCIÓN NOTICIAS DESTACADAS                               -->
+  <!-- ========================================================= -->
+  <section id="noticias" class="py-16 bg-space-900/30 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-8">
+        <span class="text-xs font-mono uppercase tracking-widest text-nasa-red">Boletín Científico</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Últimos Avances y Descubrimientos</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <article class="glass-panel rounded-2xl p-6 border border-white/10 hover:border-nasa-cyan/40 transition-all flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-mono text-nasa-cyan uppercase">Astrofísica • JWST</span>
+            <h3 class="text-lg font-bold text-white mt-2">James Webb detecta moléculas orgánicas complejas en una galaxia primitiva</h3>
+            <p class="text-slate-400 text-sm mt-2 leading-relaxed">
+              Las observaciones infrarrojas revelan estructuras químicas formadas apenas mil millones de años después del Big Bang.
+            </p>
+          </div>
+          <div class="mt-5 pt-4 border-t border-white/10 flex justify-between items-center text-xs font-mono text-slate-400">
+            <span>REPORTE #JW-409</span>
+            <span class="text-nasa-cyan">VERIFICADO</span>
+          </div>
+        </article>
+
+        <article class="glass-panel rounded-2xl p-6 border border-white/10 hover:border-nasa-cyan/40 transition-all flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-mono text-nasa-red uppercase">Exploración Lunar • Artemis</span>
+            <h3 class="text-lg font-bold text-white mt-2">Pruebas finales de soporte vital para el vuelo tripulado alrededor de la Luna</h3>
+            <p class="text-slate-400 text-sm mt-2 leading-relaxed">
+              La cápsula Orión completa simulaciones de reentrada de alta velocidad y comunicaciones ópticas láser con estaciones terrestres.
+            </p>
+          </div>
+          <div class="mt-5 pt-4 border-t border-white/10 flex justify-between items-center text-xs font-mono text-slate-400">
+            <span>REPORTE #ART-202</span>
+            <span class="text-emerald-400">EN CURSO</span>
+          </div>
+        </article>
+
+        <article class="glass-panel rounded-2xl p-6 border border-white/10 hover:border-nasa-cyan/40 transition-all flex flex-col justify-between">
+          <div>
+            <span class="text-[11px] font-mono text-amber-400 uppercase">Ciencia Planetaria • Marte</span>
+            <h3 class="text-lg font-bold text-white mt-2">Perseverance sella una nueva muestra de roca sedimentaria en el cráter Jezero</h3>
+            <p class="text-slate-400 text-sm mt-2 leading-relaxed">
+              Los análisis espectrométricos muestran minerales hidratados clave para comprender el pasado acuoso del planeta rojo.
+            </p>
+          </div>
+          <div class="mt-5 pt-4 border-t border-white/10 flex justify-between items-center text-xs font-mono text-slate-400">
+            <span>SOL 1,342</span>
+            <span class="text-nasa-cyan">TELEMETRÍA OK</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- 7. PIE DE PÁGINA INSTITUCIONAL Y BOLETÍN                  -->
+  <!-- ========================================================= -->
+  <footer class="bg-space-950 border-t border-white/10 pt-14 pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-12 gap-10 pb-10 border-b border-white/10">
+        <div class="md:col-span-5 space-y-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-nasa-blue flex items-center justify-center font-black text-white text-xs tracking-wider border border-white/20">
+              NASA
+            </div>
+            <span class="font-bold text-white tracking-wide">PORTAL DE EXPLORACIÓN ESPACIAL</span>
+          </div>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Plataforma interactiva de divulgación científica, seguimiento de misiones orbitales y simulación aeroespacial inspirada en la Administración Nacional de Aeronáutica y el Espacio.
+          </p>
+        </div>
+
+        <div class="md:col-span-3 space-y-2.5 text-sm">
+          <div class="font-mono text-xs uppercase text-nasa-cyan tracking-wider mb-3">Navegación</div>
+          <div><a href="#misiones" class="text-slate-400 hover:text-white transition-colors">Misiones Activas</a></div>
+          <div><a href="#sistema-solar" class="text-slate-400 hover:text-white transition-colors">Sistema Solar</a></div>
+          <div><a href="#telemetria" class="text-slate-400 hover:text-white transition-colors">Simulador de Lanzamiento</a></div>
+          <div><a href="#galeria" class="text-slate-400 hover:text-white transition-colors">Galería APOD</a></div>
+        </div>
+
+        <div class="md:col-span-4 space-y-3">
+          <div class="font-mono text-xs uppercase text-nasa-cyan tracking-wider">Boletín de Misiones</div>
+          <p class="text-slate-400 text-sm">Recibe alertas de lanzamientos y descubrimientos astronómicos en tu correo.</p>
+          <form id="newsletter-form" class="flex flex-col sm:flex-row gap-2.5 pt-1">
+            <input
+              type="email"
+              id="newsletter-email"
+              required
+              placeholder="astronauta@dominio.com"
+              class="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/15 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-nasa-cyan"
+            />
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-nasa-blue hover:bg-blue-700 text-white font-semibold text-sm transition-colors cursor-pointer">
+              Suscribirme
+            </button>
+          </form>
+          <div id="newsletter-feedback" class="hidden text-xs font-mono px-3 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"></div>
+        </div>
+      </div>
+
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <p>Aviso: Proyecto educativo y de demostración tecnológica inspirado en la NASA. No es un sitio gubernamental oficial.</p>
+        <p class="font-mono">TELEMETRÍA DEMO • 2026</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================= -->
+  <!-- MODAL REUTILIZABLE (MISIONES Y GALERÍA APOD)              -->
+  <!-- ========================================================= -->
+  <div id="app-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="relative w-full max-w-2xl glass-panel bg-space-900 rounded-3xl border border-white/15 p-6 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <button id="close-modal-btn" aria-label="Cerrar ventana" class="absolute top-5 right-5 p-2 rounded-xl bg-white/5 hover:bg-white/15 text-slate-300 transition-colors cursor-pointer">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- LÓGICA INTERACTIVA JAVASCRIPT                             -->
+  <!-- ========================================================= -->
+  <script>
+    // ===========================================================
+    // 1. DATOS CIENTÍFICOS (PLANETAS, MISIONES Y GALERÍA APOD)
+    // ===========================================================
+    const planetsData = [
+      {
+        id: 'tierra',
+        name: 'Tierra',
+        subtitle: 'Planeta Azul • Órbita Terrestre',
+        classification: 'Planeta Terrestre',
+        distance: '149.6M km',
+        gravity: '9.81 m/s²',
+        temp: '15 °C',
+        day: '23h 56m',
+        description: 'Nuestro planeta natal y el único mundo conocido con océanos líquidos permanentes en superficie y una biosfera compleja protegida por una magnetosfera activa.',
+        missions: ['Estación Espacial Internacional (ISS)', 'Landsat 9', 'SWOT', 'Terra & Aqua'],
+        svg: `
+          <svg viewBox="0 0 200 200" class="w-full h-full">
+            <defs>
+              <radialGradient id="pEarth" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#38bdf8" />
+                <stop offset="55%" stop-color="#0B3D91" />
+                <stop offset="100%" stop-color="#020617" />
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="88" fill="#00E5FF" opacity="0.12" />
+            <circle cx="100" cy="100" r="76" fill="url(#pEarth)" />
+            <path d="M62 72 Q85 58 105 74 T132 95 Q115 122 86 115 T62 72 Z" fill="#10b981" opacity="0.55" />
+            <path d="M115 120 Q138 118 145 138 Q128 152 112 140 Z" fill="#34d399" opacity="0.45" />
+          </svg>`
+      },
+      {
+        id: 'luna',
+        name: 'Luna',
+        subtitle: 'Satélite Natural de la Tierra',
+        classification: 'Satélite Rocoso',
+        distance: '384,400 km (Tierra)',
+        gravity: '1.62 m/s²',
+        temp: '-23 °C (media)',
+        day: '27.3 días',
+        description: 'El único cuerpo celeste fuera de la Tierra pisado por seres humanos. El programa Artemis prepara el retorno sostenible y la exploración del polo sur lunar en busca de hielo de agua.',
+        missions: ['Artemis II', 'Lunar Reconnaissance Orbiter', 'CAPSTONE', 'Programa Apolo'],
+        svg: `
+          <svg viewBox="0 0 200 200" class="w-full h-full">
+            <defs>
+              <radialGradient id="pMoon" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#f1f5f9" />
+                <stop offset="60%" stop-color="#94a3b8" />
+                <stop offset="100%" stop-color="#1e293b" />
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="74" fill="url(#pMoon)" />
+            <circle cx="76" cy="78" r="14" fill="#64748b" opacity="0.45" />
+            <circle cx="122" cy="92" r="19" fill="#475569" opacity="0.4" />
+            <circle cx="94" cy="128" r="11" fill="#64748b" opacity="0.5" />
+            <circle cx="118" cy="62" r="7" fill="#475569" opacity="0.45" />
+          </svg>`
+      },
+      {
+        id: 'marte',
+        name: 'Marte',
+        subtitle: 'El Planeta Rojo',
+        classification: 'Planeta Terrestre',
+        distance: '227.9M km',
+        gravity: '3.72 m/s²',
+        temp: '-63 °C',
+        day: '24h 37m',
+        description: 'Un mundo desértico y frío con una tenue atmósfera de dióxido de carbono. Posee el volcán más grande del Sistema Solar (Monte Olimpo) y evidencia de antiguos ríos y lagos.',
+        missions: ['Perseverance Rover', 'Curiosity Rover', 'Mars Reconnaissance Orbiter', 'MAVEN'],
+        svg: `
+          <svg viewBox="0 0 200 200" class="w-full h-full">
+            <defs>
+              <radialGradient id="pMars" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#fb923c" />
+                <stop offset="55%" stop-color="#c2410c" />
+                <stop offset="100%" stop-color="#431407" />
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="85" fill="#fb923c" opacity="0.1" />
+            <circle cx="100" cy="100" r="75" fill="url(#pMars)" />
+            <ellipse cx="100" cy="32" rx="22" ry="7" fill="#f8fafc" opacity="0.65" />
+            <path d="M55 105 Q95 92 145 112 Q115 128 65 120 Z" fill="#7c2d12" opacity="0.45" />
+          </svg>`
+      },
+      {
+        id: 'jupiter',
+        name: 'Júpiter',
+        subtitle: 'Gigante Gaseoso',
+        classification: 'Gigante Gaseoso',
+        distance: '778.5M km',
+        gravity: '24.79 m/s²',
+        temp: '-110 °C',
+        day: '9h 55m',
+        description: 'El planeta más masivo del Sistema Solar, con más del doble de masa que todos los demás planetas juntos. Destaca por sus bandas nubosas y la Gran Mancha Roja, una tormenta anticiclónica centenaria.',
+        missions: ['Juno', 'Europa Clipper (en ruta)', 'Galileo', 'Voyager 1 & 2'],
+        svg: `
+          <svg viewBox="0 0 200 200" class="w-full h-full">
+            <defs>
+              <radialGradient id="pJup" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#fde68a" />
+                <stop offset="55%" stop-color="#d97706" />
+                <stop offset="100%" stop-color="#451a03" />
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="78" fill="url(#pJup)" />
+            <rect x="25" y="68" width="150" height="10" rx="5" fill="#92400e" opacity="0.45" />
+            <rect x="23" y="92" width="154" height="14" rx="7" fill="#fef3c7" opacity="0.35" />
+            <rect x="28" y="118" width="144" height="11" rx="5" fill="#78350f" opacity="0.5" />
+            <ellipse cx="122" cy="116" rx="16" ry="10" fill="#dc2626" opacity="0.75" />
+          </svg>`
+      },
+      {
+        id: 'saturno',
+        name: 'Saturno',
+        subtitle: 'La Joya Anillada',
+        classification: 'Gigante Gaseoso',
+        distance: '1,434M km',
+        gravity: '10.44 m/s²',
+        temp: '-140 °C',
+        day: '10h 33m',
+        description: 'Famoso por su espectacular sistema de anillos compuestos por miles de millones de partículas de hielo y roca. Posee más de 140 lunas conocidas, incluyendo Titán y Encélado.',
+        missions: ['Cassini-Huygens', 'Dragonfly (en desarrollo)', 'Voyager 1 & 2', 'Pioneer 11'],
+        svg: `
+          <svg viewBox="0 0 220 200" class="w-full h-full">
+            <defs>
+              <radialGradient id="pSat" cx="38%" cy="32%" r="68%">
+                <stop offset="0%" stop-color="#fef08a" />
+                <stop offset="60%" stop-color="#ca8a04" />
+                <stop offset="100%" stop-color="#422006" />
+              </radialGradient>
+            </defs>
+            <ellipse cx="110" cy="100" rx="98" ry="26" transform="rotate(-18 110 100)" fill="none" stroke="#fde047" stroke-width="11" opacity="0.35" />
+            <ellipse cx="110" cy="100" rx="82" ry="21" transform="rotate(-18 110 100)" fill="none" stroke="#fef9c3" stroke-width="5" opacity="0.55" />
+            <circle cx="110" cy="100" r="52" fill="url(#pSat)" />
+            <path d="M18 128 Q110 156 202 72" fill="none" stroke="#fde047" stroke-width="8" opacity="0.45" />
+          </svg>`
+      },
+      {
+        id: 'europa',
+        name: 'Europa',
+        subtitle: 'Luna Helada de Júpiter',
+        classification: 'Satélite Oceánico',
+        distance: '778.5M km (Júpiter)',
+        gravity: '1.31 m/s²',
+        temp: '-160 °C',
+        day: '3.55 días',
+        description: 'Bajo su corteza de hielo fracturado de 15 a 25 km de espesor se esconde un vasto océano global de agua salada con el doble del volumen de todos los océanos de la Tierra.',
+        missions: ['Europa Clipper', 'Juno (sobrevuelos)', 'Galileo'],
+        svg: `
+          <svg viewBox="0 0 200 200" class="w-full h-full">
+            <defs>
+              <radialGradient id="pEur" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#e0f2fe" />
+                <stop offset="60%" stop-color="#7dd3fc" />
+                <stop offset="100%" stop-color="#0c4a6e" />
+              </radialGradient>
+            </defs>
+            <circle cx="100" cy="100" r="72" fill="url(#pEur)" />
+            <path d="M40 85 L155 112 M48 122 L148 76 M75 38 L124 162" stroke="#b45309" stroke-width="2" opacity="0.55" />
+          </svg>`
+      }
+    ];
+
+    const missionsData = [
+      {
+        id: 'artemis-2',
+        name: 'Artemis II',
+        category: 'Luna/Artemis',
+        status: 'Preparación de Vuelo',
+        statusColor: 'text-amber-400 bg-amber-400/10 border-amber-400/30',
+        vehicle: 'Cohete SLS Block 1 + Nave Orión',
+        summary: 'Primera misión tripulada del programa Artemis que llevará a cuatro astronautas alrededor de la Luna para validar sistemas de soporte vital en el espacio profundo.',
+        specs: {
+          'Duración prevista': '10 días',
+          'Distancia máxima': '400,000+ km de la Tierra',
+          'Tripulación': '4 astronautas',
+          'Centro de Control': 'Johnson Space Center, Houston'
+        }
+      },
+      {
+        id: 'perseverance',
+        name: 'Mars Perseverance',
+        category: 'Marte',
+        status: 'Activa en Superficie',
+        statusColor: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/30',
+        vehicle: 'Rover Astrobiológico (1,025 kg)',
+        summary: 'Explora el cráter Jezero en busca de biofirmas antiguas, recolecta núcleos de roca marciana y prueba tecnologías de producción de oxígeno (MOXIE).',
+        specs: {
+          'Aterrizaje': '18 de febrero de 2021',
+          'Ubicación': 'Cráter Jezero, Marte',
+          'Fuente de energía': 'Generador termoeléctrico MMRTG',
+          'Instrumentos': 'SuperCam, PIXL, SHERLOC, Mastcam-Z'
+        }
+      },
+      {
+        id: 'jwst',
+        name: 'Telescopio Espacial James Webb',
+        category: 'Telescopios',
+        status: 'Operaciones Científicas',
+        statusColor: 'text-nasa-cyan bg-nasa-cyan/10 border-nasa-cyan/30',
+        vehicle: 'Observatorio Infrarrojo (Espejo 6.5 m)',
+        summary: 'El observatorio espacial más potente jamás construido. Estudia las primeras galaxias tras el Big Bang y analiza atmósferas de exoplanetas.',
+        specs: {
+          'Órbita': 'Punto de Lagrange Sol-Tierra L2 (1.5M km)',
+          'Espejo primario': '18 segmentos hexagonales de berilio y oro',
+          'Temperatura operativa': '-223 °C (50 K)',
+          'Instrumentos': 'NIRCam, NIRSpec, MIRI, FGS/NIRISS'
+        }
+      },
+      {
+        id: 'voyager-1',
+        name: 'Sonda Voyager 1',
+        category: 'Espacio Profundo',
+        status: 'Espacio Interestelar',
+        statusColor: 'text-purple-300 bg-purple-400/10 border-purple-400/30',
+        vehicle: 'Sonda Interestelar (722 kg)',
+        summary: 'El objeto fabricado por el ser humano más lejano de la Tierra. Continúa transmitiendo datos sobre el medio interestelar más allá de la heliopausa.',
+        specs: {
+          'Lanzamiento': '5 de septiembre de 1977',
+          'Velocidad relativa': '61,200 km/h (17 km/s)',
+          'Tiempo de señal': '+22 horas de ida',
+          'Carga icónica': 'Disco de Oro de las Voyager'
+        }
+      },
+      {
+        id: 'europa-clipper',
+        name: 'Europa Clipper',
+        category: 'Espacio Profundo',
+        status: 'En Tránsito a Júpiter',
+        statusColor: 'text-sky-300 bg-sky-400/10 border-sky-400/30',
+        vehicle: 'Sonda Orbital Planetaria',
+        summary: 'Realizará casi 50 sobrevuelos cercanos a la luna Europa de Júpiter para investigar si su océano subterráneo posee condiciones aptas para la vida.',
+        specs: {
+          'Envergadura solar': '30.5 metros',
+          'Sobrevuelos planeados': '49 acercamientos hasta 25 km',
+          'Carga científica': '9 instrumentos de radar y espectrometría',
+          'Objetivo': 'Habitabilidad del océano subsuperficial'
+        }
+      }
+    ];
+
+    const galleryData = [
+      {
+        id: 'apod-1',
+        title: 'Pilares de la Creación (Infrarrojo Cercano)',
+        date: 'APOD • Nebulosa del Águila (M16)',
+        tag: 'JWST / NIRCam',
+        explanation: 'Ubicados a 6,500 años luz en la constelación de Serpens, estos densos pilares de gas hidrógeno frío y polvo interestelar son guarderías estelares donde nacen cientos de estrellas jóvenes.',
+        svg: `
+          <svg viewBox="0 0 400 260" class="w-full h-full">
+            <defs>
+              <linearGradient id="nebBg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#090d24" />
+                <stop offset="50%" stop-color="#1e1b4b" />
+                <stop offset="100%" stop-color="#0f172a" />
+              </linearGradient>
+              <radialGradient id="nebGlow" cx="50%" cy="45%" r="55%">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.55" />
+                <stop offset="50%" stop-color="#f97316" stop-opacity="0.35" />
+                <stop offset="100%" stop-color="#090d24" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="400" height="260" fill="url(#nebBg)" />
+            <circle cx="200" cy="120" r="140" fill="url(#nebGlow)" />
+            <path d="M90 260 L115 95 Q130 75 148 98 L168 260 Z" fill="#431407" opacity="0.85" />
+            <path d="M180 260 L198 118 Q212 102 226 122 L244 260 Z" fill="#7c2d12" opacity="0.8" />
+            <path d="M265 260 L278 145 Q290 132 302 148 L316 260 Z" fill="#9a3412" opacity="0.75" />
+            <circle cx="132" cy="82" r="3" fill="#ffffff" />
+            <circle cx="212" cy="108" r="2.5" fill="#00E5FF" />
+            <circle cx="75" cy="52" r="1.8" fill="#ffffff" />
+            <circle cx="325" cy="64" r="2" fill="#fde047" />
+          </svg>`
+      },
+      {
+        id: 'apod-2',
+        title: 'Atardecer Azul en el Cráter Jezero',
+        date: 'APOD • Superficie de Marte',
+        tag: 'Rover Perseverance',
+        explanation: 'A diferencia de los atardeceres rojizos de la Tierra, el polvo fino en la atmósfera marciana dispersa la luz azul hacia adelante, creando un halo azulado alrededor del Sol en el horizonte.',
+        svg: `
+          <svg viewBox="0 0 400 260" class="w-full h-full">
+            <defs>
+              <linearGradient id="marsSky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1e293b" />
+                <stop offset="60%" stop-color="#7c2d12" />
+                <stop offset="100%" stop-color="#c2410c" />
+              </linearGradient>
+            </defs>
+            <rect width="400" height="260" fill="url(#marsSky)" />
+            <circle cx="200" cy="148" r="34" fill="#bae6fd" opacity="0.35" />
+            <circle cx="200" cy="148" r="14" fill="#f0f9ff" />
+            <path d="M0 175 Q90 155 180 172 T400 162 L400 260 L0 260 Z" fill="#451a03" />
+            <path d="M0 198 Q140 184 260 202 T400 192 L400 260 L0 260 Z" fill="#290f02" />
+          </svg>`
+      },
+      {
+        id: 'apod-3',
+        title: 'Horizonte Terrestre y Aurora Austral desde la ISS',
+        date: 'APOD • Órbita Baja (408 km)',
+        tag: 'Expedición Orbital',
+        explanation: 'Capturada a 27,600 km/h sobre el océano Índico, esta vista muestra el resplandor verde de la aurora provocado por partículas solares excitando átomos de oxígeno en la termosfera.',
+        svg: `
+          <svg viewBox="0 0 400 260" class="w-full h-full">
+            <rect width="400" height="260" fill="#030712" />
+            <path d="M-20 190 Q200 105 420 190" fill="none" stroke="#10b981" stroke-width="18" opacity="0.32" />
+            <path d="M-20 196 Q200 112 420 196" fill="none" stroke="#34d399" stroke-width="6" opacity="0.65" />
+            <path d="M-20 212 Q200 130 420 212 L420 260 L-20 260 Z" fill="#0B3D91" />
+            <path d="M-20 212 Q200 130 420 212" fill="none" stroke="#38bdf8" stroke-width="4" />
+            <circle cx="80" cy="50" r="1.5" fill="#fff" />
+            <circle cx="290" cy="40" r="1.8" fill="#fff" />
+            <circle cx="195" cy="65" r="1.2" fill="#fff" />
+          </svg>`
+      },
+      {
+        id: 'apod-4',
+        title: 'Equinoccio y Sombra de los Anillos de Saturno',
+        date: 'APOD • Sistema Saturniano',
+        tag: 'Misión Cassini',
+        explanation: 'Durante el equinoccio de Saturno, la luz solar incide de canto sobre sus anillos principales, proyectando sombras finas sobre las nubes doradas del hemisferio superior del gigante gaseoso.',
+        svg: `
+          <svg viewBox="0 0 400 260" class="w-full h-full">
+            <rect width="400" height="260" fill="#050814" />
+            <ellipse cx="200" cy="130" rx="165" ry="38" transform="rotate(-16 200 130)" fill="none" stroke="#fde047" stroke-width="14" opacity="0.28" />
+            <ellipse cx="200" cy="130" rx="135" ry="30" transform="rotate(-16 200 130)" fill="none" stroke="#fef9c3" stroke-width="6" opacity="0.5" />
+            <circle cx="200" cy="130" r="64" fill="#ca8a04" />
+            <path d="M55 170 Q200 205 345 90" fill="none" stroke="#fef08a" stroke-width="10" opacity="0.45" />
+          </svg>`
+      }
+    ];
+
+    // ===========================================================
+    // 2. MENÚ MÓVIL Y RELOJ / MÉTRICAS EN VIVO
+    // ===========================================================
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    mobileMenu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+    });
+
+    // Actualización de reloj UTC, distancia de Voyager 1 y velocidad ISS
+    let voyagerKm = 24812490120;
+    setInterval(() => {
+      const now = new Date();
+      const utcStr = now.toISOString().substring(11, 19);
+      const clockEl = document.getElementById('hero-utc-clock');
+      if (clockEl) clockEl.textContent = `UTC ${utcStr}`;
+
+      voyagerKm += 17; // ~17 km/s
+      const voyagerEl = document.getElementById('voyager-distance');
+      if (voyagerEl) voyagerEl.textContent = `${voyagerKm.toLocaleString('en-US')} km`;
+
+      const issSpeed = 27578 + Math.floor(Math.random() * 6);
+      const issEl = document.getElementById('nav-iss-speed');
+      if (issEl) issEl.textContent = `${issSpeed.toLocaleString('en-US')} km/h`;
+    }, 1000);
+
+    // ===========================================================
+    // 3. CANVAS DE ESTRELLAS ANIMADO EN HERO
+    // ===========================================================
+    const starCanvas = document.getElementById('starfield-canvas');
+    const starCtx = starCanvas.getContext('2d');
+    let stars = [];
+
+    function resizeStarCanvas() {
+      starCanvas.width = starCanvas.offsetWidth;
+      starCanvas.height = starCanvas.offsetHeight;
+      stars = Array.from({ length: 140 }, () => ({
+        x: Math.random() * starCanvas.width,
+        y: Math.random() * starCanvas.height,
+        r: Math.random() * 1.7 + 0.3,
+        speed: Math.random() * 0.28 + 0.05,
+        alpha: Math.random() * 0.8 + 0.2
+      }));
+    }
+
+    function animateStars() {
+      starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+      for (const s of stars) {
+        s.y -= s.speed;
+        if (s.y < 0) {
+          s.y = starCanvas.height;
+          s.x = Math.random() * starCanvas.width;
+        }
+        starCtx.beginPath();
+        starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        starCtx.fillStyle = `rgba(226, 242, 255, ${s.alpha})`;
+        starCtx.fill();
+      }
+      requestAnimationFrame(animateStars);
+    }
+
+    window.addEventListener('resize', resizeStarCanvas);
+    resizeStarCanvas();
+    animateStars();
+
+    // ===========================================================
+    // 4. EXPLORADOR DEL SISTEMA SOLAR
+    // ===========================================================
+    const planetSelector = document.getElementById('planet-selector');
+
+    function renderPlanetSelector(activeId) {
+      planetSelector.innerHTML = planetsData.map(p => {
+        const isActive = p.id === activeId;
+        return `
+          <button
+            data-planet="${p.id}"
+            class="p-3.5 rounded-2xl text-left transition-all cursor-pointer border ${
+              isActive
+                ? 'bg-nasa-cyan/15 border-nasa-cyan text-white shadow-lg'
+                : 'bg-space-950/60 border-white/10 text-slate-300 hover:bg-white/5'
+            }">
+            <div class="text-xs font-mono ${isActive ? 'text-nasa-cyan' : 'text-slate-500'}">${p.classification.split(' ')[0]}</div>
+            <div class="font-bold text-sm sm:text-base mt-0.5">${p.name}</div>
+          </button>
+        `;
+      }).join('');
+
+      planetSelector.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => selectPlanet(btn.dataset.planet));
+      });
+    }
+
+    function selectPlanet(id) {
+      const planet = planetsData.find(p => p.id === id) || planetsData[0];
+      renderPlanetSelector(planet.id);
+
+      document.getElementById('planet-visual-container').innerHTML = planet.svg;
+      document.getElementById('planet-classification').textContent = planet.classification;
+      document.getElementById('planet-name').textContent = planet.name;
+      document.getElementById('planet-subtitle').textContent = planet.subtitle;
+      document.getElementById('planet-description').textContent = planet.description;
+      document.getElementById('planet-distance').textContent = planet.distance;
+      document.getElementById('planet-gravity').textContent = planet.gravity;
+      document.getElementById('planet-temp').textContent = planet.temp;
+      document.getElementById('planet-day').textContent = planet.day;
+
+      document.getElementById('planet-missions').innerHTML = planet.missions
+        .map(m => `<span class="px-3 py-1 rounded-xl bg-nasa-blue/30 border border-nasa-cyan/25 text-xs font-mono text-sky-200">${m}</span>`)
+        .join('');
+    }
+
+    selectPlanet('tierra');
+
+    // ===========================================================
+    // 5. PANEL DE MISIONES ACTIVAS Y MODAL
+    // ===========================================================
+    const missionsGrid = document.getElementById('missions-grid');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const appModal = document.getElementById('app-modal');
+    const modalContent = document.getElementById('modal-content');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+
+    function openMissionModal(missionId) {
+      const m = missionsData.find(item => item.id === missionId);
+      if (!m) return;
+
+      const specsRows = Object.entries(m.specs).map(([k, v]) => `
+        <div class="bg-space-950/90 p-3.5 rounded-xl border border-white/10">
+          <div class="text-[11px] font-mono text-slate-400 uppercase">${k}</div>
+          <div class="text-sm font-bold text-white mt-1">${v}</div>
+        </div>
+      `).join('');
+
+      modalContent.innerHTML = `
+        <div class="space-y-5">
+          <div>
+            <span class="inline-block px-3 py-1 rounded-full text-xs font-mono border ${m.statusColor}">${m.status}</span>
+            <h3 class="text-2xl sm:text-3xl font-black text-white mt-3">${m.name}</h3>
+            <p class="text-xs font-mono text-nasa-cyan mt-1">${m.vehicle} • Categoría: ${m.category}</p>
+          </div>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">${m.summary}</p>
+          <div>
+            <h4 class="text-xs font-mono uppercase text-slate-400 mb-3">Especificaciones Técnicas de Misión</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">${specsRows}</div>
+          </div>
+        </div>
+      `;
+      appModal.classList.remove('hidden');
+      appModal.classList.add('flex');
+    }
+
+    function renderMissions(filter = 'Todas') {
+      const filtered = filter === 'Todas'
+        ? missionsData
+        : missionsData.filter(m => m.category === filter);
+
+      missionsGrid.innerHTML = filtered.map(m => `
+        <div class="glass-panel rounded-3xl p-6 border border-white/10 hover:border-nasa-cyan/40 transition-all flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-4">
+              <span class="text-xs font-mono text-slate-400">${m.category}</span>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-mono border ${m.statusColor}">${m.status}</span>
+            </div>
+            <h3 class="text-xl font-extrabold text-white">${m.name}</h3>
+            <p class="text-xs font-mono text-nasa-cyan mt-1">${m.vehicle}</p>
+            <p class="text-slate-300 text-sm mt-3 leading-relaxed">${m.summary}</p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
+            <span class="text-[11px] font-mono text-slate-400">TELEMETRÍA NOMINAL</span>
+            <button data-mission="${m.id}" class="open-mission-btn px-4 py-2 rounded-xl bg-white/5 hover:bg-nasa-cyan hover:text-space-950 text-white text-xs font-bold transition-all cursor-pointer">
+              Especificaciones →
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      missionsGrid.querySelectorAll('.open-mission-btn').forEach(btn => {
+        btn.addEventListener('click', () => openMissionModal(btn.dataset.mission));
+      });
+    }
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => {
+          b.classList.remove('bg-nasa-cyan', 'text-space-950');
+          b.classList.add('bg-white/5', 'text-slate-300');
+        });
+        btn.classList.remove('bg-white/5', 'text-slate-300');
+        btn.classList.add('bg-nasa-cyan', 'text-space-950');
+        renderMissions(btn.dataset.filter);
+      });
+    });
+
+    renderMissions('Todas');
+
+    // ===========================================================
+    // 6. SIMULADOR DE LANZAMIENTO Y TELEMETRÍA EN VIVO
+    // ===========================================================
+    const rocketCanvas = document.getElementById('rocket-canvas');
+    const rCtx = rocketCanvas.getContext('2d');
+    const btnLaunch = document.getElementById('btn-launch');
+    const btnResetSim = document.getElementById('btn-reset-sim');
+    const simConsole = document.getElementById('sim-console');
+
+    let simState = {
+      running: false,
+      t: -10, // T-10 segundos
+      altitude: 0,
+      velocity: 0,
+      gforce: 1.0,
+      fuel: 100,
+      orbitPct: 0,
+      stage: 'EN PLATAFORMA',
+      loggedEvents: new Set()
+    };
+    let simInterval = null;
+
+    function resizeRocketCanvas() {
+      rocketCanvas.width = rocketCanvas.offsetWidth;
+      rocketCanvas.height = rocketCanvas.offsetHeight;
+    }
+    window.addEventListener('resize', resizeRocketCanvas);
+    resizeRocketCanvas();
+
+    function logSim(msg, color = 'text-slate-300') {
+      const div = document.createElement('div');
+      div.className = color;
+      const tPrefix = simState.t < 0 ? `T${simState.t}s` : `T+${simState.t.toFixed(0)}s`;
+      div.textContent = `[${tPrefix}] ${msg}`;
+      simConsole.appendChild(div);
+      simConsole.scrollTop = simConsole.scrollHeight;
+    }
+
+    function updateStepHighlight(activeStep) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById(`step-${i}`);
+        if (i === activeStep) {
+          el.className = 'p-3 rounded-xl bg-nasa-cyan/15 border border-nasa-cyan text-xs font-mono';
+          el.children[0].className = 'text-nasa-cyan';
+          el.children[1].className = 'font-bold text-white mt-0.5';
+        } else if (i < activeStep) {
+          el.className = 'p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-mono';
+          el.children[0].className = 'text-emerald-400';
+          el.children[1].className = 'font-bold text-emerald-200 mt-0.5';
+        } else {
+          el.className = 'p-3 rounded-xl bg-space-950/60 border border-white/10 text-xs font-mono';
+          el.children[0].className = 'text-slate-500';
+          el.children[1].className = 'font-bold text-slate-300 mt-0.5';
+        }
+      }
+    }
+
+    function updateTelemetryUI() {
+      const clockStr = simState.t < 0
+        ? `T - 00:${String(Math.abs(Math.ceil(simState.t))).padStart(2, '0')}`
+        : `T + 00:${String(Math.floor(simState.t)).padStart(2, '0')}`;
+
+      document.getElementById('sim-clock').textContent = clockStr;
+      document.getElementById('sim-stage-badge').textContent = simState.stage;
+      document.getElementById('tel-altitude').textContent = `${simState.altitude.toFixed(1)} km`;
+      document.getElementById('tel-velocity').textContent = `${Math.round(simState.velocity).toLocaleString('en-US')} km/h`;
+      document.getElementById('tel-gforce').textContent = `${simState.gforce.toFixed(1)} G`;
+      document.getElementById('tel-fuel').textContent = `${Math.max(0, Math.round(simState.fuel))}%`;
+      document.getElementById('sim-orbit-pct').textContent = `${Math.round(simState.orbitPct)}%`;
+      document.getElementById('sim-orbit-bar').style.width = `${simState.orbitPct}%`;
+    }
+
+    function drawRocketScene() {
+      const w = rocketCanvas.width;
+      const h = rocketCanvas.height;
+      rCtx.clearRect(0, 0, w, h);
+
+      // Estrellas de fondo en el visor
+      rCtx.fillStyle = 'rgba(255,255,255,0.45)';
+      for (let i = 0; i < 28; i++) {
+        const sx = ((i * 73) % w);
+        const sy = ((i * 47 + (simState.t > 0 ? simState.t * 25 : 0)) % h);
+        rCtx.fillRect(sx, sy, 1.5, 1.5);
+      }
+
+      const centerX = w / 2;
+      // Posición vertical del cohete según fase
+      let rocketY = h - 95;
+      if (simState.t > 0) {
+        const climb = Math.min(h * 0.42, simState.t * 4.5);
+        rocketY = h - 95 - climb;
+      }
+
+      // Plataforma si aún está en tierra
+      if (simState.t <= 2) {
+        const padOffset = simState.t > 0 ? simState.t * 25 : 0;
+        rCtx.fillStyle = '#334155';
+        rCtx.fillRect(centerX - 48, h - 55 + padOffset, 96, 8);
+        rCtx.fillRect(centerX - 36, h - 125 + padOffset, 6, 70);
+      }
+
+      // Llama de propulsión cuando T >= -1
+      if (simState.t >= -1 && simState.orbitPct < 100) {
+        const flameLen = 28 + Math.random() * 18;
+        const grad = rCtx.createLinearGradient(centerX, rocketY + 38, centerX, rocketY + 38 + flameLen);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.35, '#fbbf24');
+        grad.addColorStop(0.75, '#FC3D21');
+        grad.addColorStop(1, 'rgba(252,61,33,0)');
+
+        rCtx.beginPath();
+        rCtx.moveTo(centerX - 10, rocketY + 38);
+        rCtx.lineTo(centerX + 10, rocketY + 38);
+        rCtx.lineTo(centerX, rocketY + 38 + flameLen);
+        rCtx.closePath();
+        rCtx.fillStyle = grad;
+        rCtx.fill();
+      }
+
+      // Cuerpo principal del cohete
+      rCtx.fillStyle = '#f8fafc';
+      rCtx.fillRect(centerX - 8, rocketY - 12, 16, 50);
+
+      // Tanque central naranja estilo SLS
+      rCtx.fillStyle = '#ea580c';
+      rCtx.fillRect(centerX - 7, rocketY - 4, 14, 34);
+
+      // Propulsores laterales (si no ha ocurrido separación en T+18)
+      if (simState.t < 18) {
+        rCtx.fillStyle = '#e2e8f0';
+        rCtx.fillRect(centerX - 14, rocketY + 2, 5, 36);
+        rCtx.fillRect(centerX + 9, rocketY + 2, 5, 36);
+      }
+
+      // Ojiva / Cápsula Orión
+      rCtx.beginPath();
+      rCtx.moveTo(centerX - 8, rocketY - 12);
+      rCtx.lineTo(centerX + 8, rocketY - 12);
+      rCtx.lineTo(centerX, rocketY - 28);
+      rCtx.closePath();
+      rCtx.fillStyle = '#ffffff';
+      rCtx.fill();
+
+      requestAnimationFrame(drawRocketScene);
+    }
+    drawRocketScene();
+
+    function stepSimulation() {
+      simState.t += 0.5;
+
+      if (simState.t === -6 && !simState.loggedEvents.has('apu')) {
+        simState.loggedEvents.add('apu');
+        logSim('Unidades de potencia auxiliar activadas. Presurización de tanques nominal.', 'text-slate-300');
+      }
+      if (simState.t === -2 && !simState.loggedEvents.has('ign')) {
+        simState.loggedEvents.add('ign');
+        simState.stage = 'IGNICIÓN MOTORES RS-25';
+        logSim('Secuencia de ignición de motores principales iniciada.', 'text-amber-300');
+      }
+      if (simState.t === 0 && !simState.loggedEvents.has('liftoff')) {
+        simState.loggedEvents.add('liftoff');
+        simState.stage = 'ETAPA 1 • ASCENSO';
+        updateStepHighlight(1);
+        logSim('¡DESPEGUE! El vehículo ha abandonado la plataforma 39B.', 'text-nasa-red font-bold');
+      }
+      if (simState.t > 0 && simState.t <= 18) {
+        simState.altitude += 3.8;
+        simState.velocity += 520;
+        simState.gforce = Math.min(3.2, 1.2 + simState.t * 0.11);
+        simState.fuel -= 1.8;
+        simState.orbitPct = Math.min(48, (simState.t / 18) * 48);
+      }
+      if (simState.t === 18 && !simState.loggedEvents.has('sep')) {
+        simState.loggedEvents.add('sep');
+        simState.stage = 'SEPARACIÓN DE ETAPAS';
+        updateStepHighlight(2);
+        logSim('Separación limpia de propulsores laterales y Etapa 1.', 'text-nasa-cyan');
+      }
+      if (simState.t > 18 && simState.t <= 36) {
+        if (!simState.loggedEvents.has('st2')) {
+          simState.loggedEvents.add('st2');
+          simState.stage = 'ETAPA 2 • INSERCIÓN';
+          updateStepHighlight(3);
+          logSim('Encendido de Etapa 2 ICPS. Acelerando hacia velocidad orbital.', 'text-amber-300');
+        }
+        simState.altitude += 7.5;
+        simState.velocity += 1020;
+        simState.gforce = 2.6;
+        simState.fuel -= 1.4;
+        simState.orbitPct = Math.min(100, 48 + ((simState.t - 18) / 18) * 52);
+      }
+      if (simState.t >= 36) {
+        simState.altitude = 408.0;
+        simState.velocity = 27600;
+        simState.gforce = 0.0;
+        simState.fuel = 14;
+        simState.orbitPct = 100;
+        simState.stage = 'ÓRBITA ESTABLE ALCANZADA';
+        updateStepHighlight(4);
+        if (!simState.loggedEvents.has('orbit')) {
+          simState.loggedEvents.add('orbit');
+          logSim('¡INSERCIÓN ORBITAL COMPLETADA! Nave Orión en órbita terrestre estable.', 'text-emerald-400 font-bold');
+        }
+        clearInterval(simInterval);
+        simState.running = false;
+        btnLaunch.disabled = false;
+        btnLaunch.classList.remove('opacity-50');
+      }
+
+      updateTelemetryUI();
+    }
+
+    btnLaunch.addEventListener('click', () => {
+      if (simState.running) return;
+      if (simState.orbitPct >= 100) resetSimulation();
+      simState.running = true;
+      btnLaunch.disabled = true;
+      btnLaunch.classList.add('opacity-50');
+      logSim('Cuenta regresiva automática iniciada.', 'text-nasa-cyan');
+      simInterval = setInterval(stepSimulation, 500);
+    });
+
+    function resetSimulation() {
+      clearInterval(simInterval);
+      simState = {
+        running: false,
+        t: -10,
+        altitude: 0,
+        velocity: 0,
+        gforce: 1.0,
+        fuel: 100,
+        orbitPct: 0,
+        stage: 'EN PLATAFORMA',
+        loggedEvents: new Set()
+      };
+      btnLaunch.disabled = false;
+      btnLaunch.classList.remove('opacity-50');
+      updateStepHighlight(0);
+      updateTelemetryUI();
+      simConsole.innerHTML = '<div class="text-slate-400">[SISTEMA] Secuencia reiniciada. Listo para nuevo lanzamiento.</div>';
+    }
+
+    btnResetSim.addEventListener('click', resetSimulation);
+
+    // ===========================================================
+    // 7. GALERÍA ASTRONÓMICA (APOD) Y MODAL AMPLIADO
+    // ===========================================================
+    const galleryGrid = document.getElementById('gallery-grid');
+
+    function openGalleryModal(apodId) {
+      const item = galleryData.find(g => g.id === apodId);
+      if (!item) return;
+
+      modalContent.innerHTML = `
+        <div class="space-y-5">
+          <div class="rounded-2xl overflow-hidden border border-white/15 aspect-video bg-space-950">
+            ${item.svg}
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-mono text-nasa-cyan">${item.date}</span>
+              <span class="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-slate-300">${item.tag}</span>
+            </div>
+            <h3 class="text-2xl font-black text-white mt-2">${item.title}</h3>
+            <p class="text-slate-300 text-sm sm:text-base mt-3 leading-relaxed">${item.explanation}</p>
+          </div>
+        </div>
+      `;
+      appModal.classList.remove('hidden');
+      appModal.classList.add('flex');
+    }
+
+    galleryGrid.innerHTML = galleryData.map(item => `
+      <div data-apod="${item.id}" class="apod-card group glass-panel rounded-3xl overflow-hidden border border-white/10 hover:border-nasa-cyan/40 transition-all cursor-pointer flex flex-col">
+        <div class="aspect-video overflow-hidden bg-space-950 relative">
+          <div class="w-full h-full group-hover:scale-105 transition-transform duration-500">
+            ${item.svg}
+          </div>
+          <span class="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-black/65 backdrop-blur-md text-[10px] font-mono text-nasa-cyan border border-white/10">
+            ${item.tag}
+          </span>
+        </div>
+        <div class="p-5 flex-1 flex flex-col justify-between">
+          <div>
+            <div class="text-[11px] font-mono text-slate-400">${item.date}</div>
+            <h3 class="text-base font-bold text-white mt-1 group-hover:text-nasa-cyan transition-colors">${item.title}</h3>
+          </div>
+          <div class="mt-4 text-xs font-mono text-nasa-cyan flex items-center gap-1">
+            <span>Ampliar captura</span>
+            <span>↗</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    galleryGrid.querySelectorAll('.apod-card').forEach(card => {
+      card.addEventListener('click', () => openGalleryModal(card.dataset.apod));
+    });
+
+    // Cerrar modal
+    closeModalBtn.addEventListener('click', () => {
+      appModal.classList.add('hidden');
+      appModal.classList.remove('flex');
+    });
+    appModal.addEventListener('click', (e) => {
+      if (e.target === appModal) {
+        appModal.classList.add('hidden');
+        appModal.classList.remove('flex');
+      }
+    });
+
+    // ===========================================================
+    // 8. BOLETÍN DE SUSCRIPCIÓN EN PIE DE PÁGINA
+    // ===========================================================
+    const newsletterForm = document.getElementById('newsletter-form');
+    const newsletterEmail = document.getElementById('newsletter-email');
+    const newsletterFeedback = document.getElementById('newsletter-feedback');
+
+    newsletterForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const emailVal = newsletterEmail.value.trim();
+      if (!emailVal) return;
+
+      newsletterFeedback.textContent = `✓ Suscripción confirmada para ${emailVal}. Recibirás alertas de lanzamiento.`;
+      newsletterFeedback.classList.remove('hidden');
+      newsletterEmail.value = '';
+    });
+  </script>
+</body>
+</html>
